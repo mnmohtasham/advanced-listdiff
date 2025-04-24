@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparison Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .scrollable-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Increased min width for larger columns */
+            gap: 30px;
+            padding: 30px;  /* Increased padding for more space */
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            max-width: 90%; /* Adjust width to fill a larger portion of the screen */
+            margin: 0 auto; /* Centered on screen */
+        }
+        .result-card {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;  /* Increased padding inside each card */
+            background: #fff;
+        }
+        .result-card h4 {
+            margin-bottom: 10px;
+        }
+        .scrollable-list {
+            max-height: 300px; /* Increased height for scrollable area */
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            background: #fefefe;
+        }
+        .list-group-item {
+            font-size: 14px;
+        }
+        .copy-btn {
+            cursor: pointer;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+<div class="container my-5">
+    <h1 class="text-center mb-4">Comparison Results</h1>
+
+    <div class="scrollable-container">
+        <!-- Intersection -->
+        <div class="result-card">
+            <h4>Intersection ({{ results['intersection'] | length }})
+                <button class="btn btn-sm btn-outline-secondary copy-btn" onclick="copyToClipboard('intersection-list')">Copy</button>
+            </h4>
+            <div class="scrollable-list" id="intersection-list">
+                <ul class="list-group">
+                    {% for item in results['intersection'] %}
+                    <li class="list-group-item">{{ item }}</li>
+                    {% endfor %}
+                    {% if results['intersection']|length == 0 %}
+                    <li class="list-group-item text-muted">No items found</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Unique to List A -->
+        <div class="result-card">
+            <h4>Unique to List A ({{ results['unique_to_a'] | length }})
+                <button class="btn btn-sm btn-outline-secondary copy-btn" onclick="copyToClipboard('unique-a-list')">Copy</button>
+            </h4>
+            <div class="scrollable-list" id="unique-a-list">
+                <ul class="list-group">
+                    {% for item in results['unique_to_a'] %}
+                    <li class="list-group-item">{{ item }}</li>
+                    {% endfor %}
+                    {% if results['unique_to_a']|length == 0 %}
+                    <li class="list-group-item text-muted">No items found</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Unique to List B -->
+        <div class="result-card">
+            <h4>Unique to List B ({{ results['unique_to_b'] | length }})
+                <button class="btn btn-sm btn-outline-secondary copy-btn" onclick="copyToClipboard('unique-b-list')">Copy</button>
+            </h4>
+            <div class="scrollable-list" id="unique-b-list">
+                <ul class="list-group">
+                    {% for item in results['unique_to_b'] %}
+                    <li class="list-group-item">{{ item }}</li>
+                    {% endfor %}
+                    {% if results['unique_to_b']|length == 0 %}
+                    <li class="list-group-item text-muted">No items found</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Symmetric Difference -->
+        <div class="result-card">
+            <h4>Symmetric Difference ({{ results['symmetric_difference'] | length }})
+                <button class="btn btn-sm btn-outline-secondary copy-btn" onclick="copyToClipboard('symmetric-list')">Copy</button>
+            </h4>
+            <div class="scrollable-list" id="symmetric-list">
+                <ul class="list-group">
+                    {% for item in results['symmetric_difference'] %}
+                    <li class="list-group-item">{{ item }}</li>
+                    {% endfor %}
+                    {% if results['symmetric_difference']|length == 0 %}
+                    <li class="list-group-item text-muted">No items found</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <form action="/download" method="post">
+            <input type="hidden" name="results" value="{{ results }}">
+            <button type="submit" class="btn btn-success">Download Results as CSV</button>
+        </form>
+        <a href="/" class="btn btn-secondary mt-3">Back to Compare</a>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard(listId) {
+        const list = document.getElementById(listId);
+        const text = Array.from(list.querySelectorAll('li')).map(item => item.textContent).join('\n');
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copied to clipboard!');
+        }).catch(err => {
+            alert('Failed to copy: ' + err);
+        });
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
