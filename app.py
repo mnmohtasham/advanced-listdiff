@@ -31,13 +31,28 @@ def home():
 
 @app.route('/compare', methods=['POST'])
 def compare():
-    list_a = request.form.get('list_a', '').splitlines()
-    list_b = request.form.get('list_b', '').splitlines()
+    raw_list_a = request.form.get('list_a', '')
+    raw_list_b = request.form.get('list_b', '')
+    separator = request.form.get('separator', 'newline')
     ignore_case = 'ignore_case' in request.form
     trim_spaces = 'trim_spaces' in request.form
 
+    # Define how to interpret separator
+    sep_map = {
+        "newline": "\n",
+        "comma": ",",
+        "tab": "\t",
+        "space": " ",
+        "semicolon": ";"
+    }
+    sep_char = sep_map.get(separator, "\n")
+
+    list_a = raw_list_a.split(sep_char)
+    list_b = raw_list_b.split(sep_char)
+
     results = process_lists(list_a, list_b, ignore_case, trim_spaces)
     return render_template('results.html', results=results)
+
 
 @app.route('/upload', methods=['POST'])
 def upload():

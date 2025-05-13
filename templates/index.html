@@ -20,6 +20,19 @@
             <textarea class="form-control" id="list_b" name="list_b" rows="5" placeholder="Enter one item per line..." oninput="updateListInfo()"></textarea>
             <div id="list_b_info" class="mt-2"></div>
         </div>
+
+        <!-- New separator dropdown -->
+        <div class="mb-3">
+            <label for="separator" class="form-label">Select Separator:</label>
+            <select class="form-select" name="separator" id="separator">
+                <option value="newline" selected>Newline (default)</option>
+                <option value="comma">Comma (,)</option>
+                <option value="tab">Tab (↹)</option>
+                <option value="space">Space</option>
+                <option value="semicolon">Semicolon (;)</option>
+            </select>
+        </div>
+
         <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" name="ignore_case" id="ignore_case">
             <label class="form-check-label" for="ignore_case">Ignore Case</label>
@@ -49,25 +62,19 @@
 
 <script>
 function updateListInfo() {
-    // Get the content of the textareas
     const listAContent = document.getElementById("list_a").value;
     const listBContent = document.getElementById("list_b").value;
 
-    // Calculate the number of items and size in bytes for List A
     const listAArray = listAContent.split('\n').filter(item => item.trim() !== "");
     const listASize = new TextEncoder().encode(listAContent).length;
 
-    // Calculate the number of items and size in bytes for List B
     const listBArray = listBContent.split('\n').filter(item => item.trim() !== "");
     const listBSize = new TextEncoder().encode(listBContent).length;
 
-    // Update the information displayed for List A
     document.getElementById("list_a_info").innerHTML = `
         <strong>List A:</strong>
         ${listAArray.length} items, ${formatSize(listASize)} size
     `;
-
-    // Update the information displayed for List B
     document.getElementById("list_b_info").innerHTML = `
         <strong>List B:</strong>
         ${listBArray.length} items, ${formatSize(listBSize)} size
@@ -88,4 +95,3 @@ document.getElementById("compareForm").onsubmit = validateDataSize;
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
