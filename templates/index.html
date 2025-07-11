@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,21 +7,36 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+
+<nav class="navbar navbar-expand-lg bg-success" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Advanced ListDiff</a>
+        <div class="d-flex ms-auto align-items-center">
+            <a class="btn btn-light btn-sm me-3" href="https://github.com/mnmohtasham/advanced-listdiff" target="_blank" rel="noopener noreferrer">
+                Self-Hosting
+            </a>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="theme-switcher">
+                <label class="form-check-label" for="theme-switcher">Dark Mode</label>
+            </div>
+        </div>
+    </div>
+</nav>
+
 <div class="container my-4">
-    <h1 class="text-center">Advanced ListDiff</h1>
     <form id="compareForm" action="/compare" method="post" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="list_a" class="form-label">List A:</label>
             <textarea class="form-control" id="list_a" name="list_a" rows="5" placeholder="Enter one item per line..." oninput="updateListInfo()"></textarea>
             <div id="list_a_info" class="mt-2"></div>
+            <button type="button" class="btn btn-outline-secondary btn-sm mt-2" data-bs-toggle="tooltip" data-bs-placement="right" title="Cleans the list by replacing various separators (space, comma, tab, semicolon, colon, pipe) with a single newline." onclick="standardizeList('list_a')">Clean Up List A</button>
         </div>
         <div class="mb-3">
             <label for="list_b" class="form-label">List B:</label>
             <textarea class="form-control" id="list_b" name="list_b" rows="5" placeholder="Enter one item per line..." oninput="updateListInfo()"></textarea>
             <div id="list_b_info" class="mt-2"></div>
+            <button type="button" class="btn btn-outline-secondary btn-sm mt-2" data-bs-toggle="tooltip" data-bs-placement="right" title="Cleans the list by replacing various separators (space, comma, tab, semicolon, colon, pipe) with a single newline." onclick="standardizeList('list_b')">Clean Up List B</button>
         </div>
-
-        <!-- New separator dropdown -->
         <div class="mb-3">
             <label for="separator" class="form-label">Select Separator:</label>
             <select class="form-select" name="separator" id="separator">
@@ -32,20 +47,17 @@
                 <option value="semicolon">Semicolon (;)</option>
             </select>
         </div>
-
         <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" name="ignore_case" id="ignore_case">
+            <input class="form-check-input" type="checkbox" name="ignore_case" id="ignore_case" onchange="updateListInfo()">
             <label class="form-check-label" for="ignore_case">Ignore Case</label>
         </div>
         <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" name="trim_spaces" id="trim_spaces">
+            <input class="form-check-input" type="checkbox" name="trim_spaces" id="trim_spaces" checked>
             <label class="form-check-label" for="trim_spaces">Trim Leading/Trailing Spaces</label>
         </div>
         <button type="submit" class="btn btn-primary">Compare</button>
     </form>
-
     <hr>
-
     <h2>Upload Files</h2>
     <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
         <div class="mb-3">
@@ -61,37 +73,38 @@
 </div>
 
 <script>
-function updateListInfo() {
-    const listAContent = document.getElementById("list_a").value;
-    const listBContent = document.getElementById("list_b").value;
-
-    const listAArray = listAContent.split('\n').filter(item => item.trim() !== "");
-    const listASize = new TextEncoder().encode(listAContent).length;
-
-    const listBArray = listBContent.split('\n').filter(item => item.trim() !== "");
-    const listBSize = new TextEncoder().encode(listBContent).length;
-
-    document.getElementById("list_a_info").innerHTML = `
-        <strong>List A:</strong>
-        ${listAArray.length} items, ${formatSize(listASize)} size
-    `;
-    document.getElementById("list_b_info").innerHTML = `
-        <strong>List B:</strong>
-        ${listBArray.length} items, ${formatSize(listBSize)} size
-    `;
-}
-
-function formatSize(sizeInBytes) {
-    if (sizeInBytes < 1024) return sizeInBytes + " bytes";
-    const kb = sizeInBytes / 1024;
-    if (kb < 1024) return kb.toFixed(2) + " KB";
-    const mb = kb / 1024;
-    return mb.toFixed(2) + " MB";
-}
-
-document.getElementById("compareForm").onsubmit = validateDataSize;
+    function standardizeList(listId){const textArea=document.getElementById(listId);if(!textArea)return;let content=textArea.value;let standardizedContent=content.replace(/[,\t; :|]+/g,"\n");const items=standardizedContent.split("\n").map(item=>item.trim()).filter(item=>item.trim()!=="");textArea.value=items.join("\n");document.getElementById("separator").value="newline";updateListInfo()}
+    function updateListInfo(){const listAContent=document.getElementById("list_a").value;const listBContent=document.getElementById("list_b").value;const ignoreCase=document.getElementById("ignore_case").checked;const getListStats=content=>{const items=content.split("\n").map(item=>item.trim()).filter(item=>item!=="");const uniqueItems=new Set(ignoreCase?items.map(item=>item.toLowerCase()):items);return{total:items.length,unique:uniqueItems.size,size:new TextEncoder().encode(content).length}};const statsA=getListStats(listAContent);const statsB=getListStats(listBContent);document.getElementById("list_a_info").innerHTML=`<strong>List A:</strong>\n        ${statsA.total} items (${statsA.unique} unique), ${formatSize(statsA.size)}`;document.getElementById("list_b_info").innerHTML=`<strong>List B:</strong>\n        ${statsB.total} items (${statsB.unique} unique), ${formatSize(statsB.size)}`}
+    function formatSize(sizeInBytes){if(sizeInBytes<1024)return sizeInBytes+" bytes";const kb=sizeInBytes/1024;if(kb<1024)return kb.toFixed(2)+" KB";const mb=kb/1024;return mb.toFixed(2)+" MB"}
+    document.getElementById("compareForm").onsubmit=validateDataSize;window.onload=updateListInfo;
+    var tooltipTriggerList=[].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));var tooltipList=tooltipTriggerList.map(function(tooltipTriggerEl){return new bootstrap.Tooltip(tooltipTriggerEl)});
 </script>
-
+<script>
+(() => {
+    'use strict';
+    const getStoredTheme = () => localStorage.getItem('theme');
+    const setStoredTheme = theme => localStorage.setItem('theme', theme);
+    const getPreferredTheme = () => {
+        const storedTheme = getStoredTheme();
+        if (storedTheme) return storedTheme;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    const setTheme = theme => {
+        document.documentElement.setAttribute('data-bs-theme', theme);
+    };
+    const themeSwitcher = document.getElementById('theme-switcher');
+    const currentTheme = getPreferredTheme();
+    setTheme(currentTheme);
+    if (themeSwitcher) {
+        themeSwitcher.checked = currentTheme === 'dark';
+    }
+    themeSwitcher.addEventListener('change', () => {
+        const theme = themeSwitcher.checked ? 'dark' : 'light';
+        setStoredTheme(theme);
+        setTheme(theme);
+    });
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
