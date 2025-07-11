@@ -13,9 +13,6 @@ RUN chown -R appuser:appuser /app
 # Switch to the non-root user
 USER appuser
 
-# --- THIS IS THE FIX ---
-# Add the user's local bin directory to the PATH environment variable.
-# This ensures that executables installed by pip (like gunicorn) can be found.
 ENV PATH="/home/appuser/.local/bin:${PATH}"
 
 # Upgrade pip and install dependencies
